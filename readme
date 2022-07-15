@@ -1,0 +1,67 @@
+# dtrain
+
+dtrain is a command to send dbus messages.
+It attempts to be a more user friendly alternative to *dbus-send*.
+
+## Requirements
+
+Requires *ruby* and gems *ruby-dbus* and *test-unit* package.
+
+    $ sudo apt install ruby
+    $ sudo gem install ruby-dbus test-unit
+    
+## Install
+
+Execute **make test** to test the program.
+Then execute **make install** as a root to install.
+
+## Usage
+
+Start with executing the program without arguments.
+This will list all services available on the session bus.
+
+```
+$ dtrain
+ca.desrt.dconf
+com.feralinteractive.GameMode
+com.intel.dleyna-renderer
+com.intel.dleyna-server
+...
+```
+
+Use the service name as an argument to list methods of the service.
+
+```
+$ dtrain org.gnome.ScreenSaver
+/org/gnome/ScreenSaver
+  org.gnome.ScreenSaver.GetActive
+  org.gnome.ScreenSaver.GetActiveTime
+  org.gnome.ScreenSaver.Lock
+  org.gnome.ScreenSaver.SetActive
+...
+```
+
+Often, the service name and object name can be derived from the interface name.
+In this case we can call the method just by passing it as an argument.
+
+```
+$ dtrain org.gnome.ScreenSaver.GetActive
+false
+```
+
+## TODO
+
+- call dbus method
+  - nice print of a complex result, like in org.gtk.vfs.Daemon.ListMonitorImplementations
+  - print multiple results? is there an example for this?
+- better error message if the method call fails at the remote end
+- accept method arguments
+- argument --service and --object
+- better error messages in case the service and object cannot be derived
+- arguments --session, --system to select the bus
+- better error message in case the session bus is not running
+- list properties of a service
+- get dbus property value
+- set dbus property value
+- monitor signal
+
