@@ -10,7 +10,7 @@ class NullIO
 end
 
 def help()
-  puts "Usage: dtrain [--help][--verbose] [service|interface.method]"
+  puts "Usage: dtrain [--help][--verbose] [--system] [service|interface.method]"
   puts ""
   puts "Without service - List available services."
   puts "With service - List methods of the service."
@@ -18,6 +18,8 @@ def help()
   puts ""
   puts "  --help     Display help"
   puts "  --verbose  Print more information"
+  puts ""
+  puts "  --system   Use system bus. The default is to use session bus."
 end
 
 def all_services(bus, log)
@@ -114,7 +116,7 @@ def parse_method_arguments(params, args)
     end
     return parsed
   else 
-    raise "Wrong number of arguments, expected #{m.params.size}, got #{args.size}"
+    raise "Wrong number of arguments, expected #{params.size}, got #{args.size}"
   end
   return args
 end
@@ -141,6 +143,7 @@ def parse_arguments(args)
   names = OptionParser.new do |opt|
     opt.on("--help") { |o| options[:help] = true }
     opt.on("--verbose") { |o| options[:verbose] = true }
+    opt.on("--system") { |o| options[:system] = true }
   end.parse(args)
   options[:names] = names
   options
@@ -163,8 +166,13 @@ def dtrain(args)
     help()
   else
     names = options[:names]
-    log.puts "Connect to the Session Bus"
-    bus = DBus::SessionBus.instance  
+    if (options[:system])
+      log.puts("connect to system bus")
+      bus = DBus::SystemBus.instance
+    else
+      log.puts "connect to session bus"
+      bus = DBus::SessionBus.instance
+    end
     if names == [] then
       log.puts "no name given, list all services"
       list_services(bus, log)

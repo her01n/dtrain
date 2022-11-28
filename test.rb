@@ -140,6 +140,12 @@ class TestDTrain < Test::Unit::TestCase
     assert_include service_log, "Subtract called"
     assert_include output, "4"
   end
+  
+  def test_system
+    dtrain(["--verbose", "--system"])
+    # some common system service name
+    assert_include output, "org.freedesktop.hostname"
+  end
 end
 
 ARGV.each do|a|

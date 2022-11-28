@@ -29,7 +29,7 @@ com.intel.dleyna-server
 ...
 ```
 
-Use the service name as an argument to list methods of the service.
+Use the service name as an argument to list objects and methods of the service.
 
 ```
 $ dtrain org.gnome.ScreenSaver
@@ -47,6 +47,18 @@ In this case we can call the method just by passing it as an argument.
 ```
 $ dtrain org.gnome.ScreenSaver.GetActive
 false
+```
+
+Add '--system' to use system bus, instead of the default session bus.
+
+```
+$ dtrain --system
+org.bluez
+org.freedesktop.Accounts
+org.freedesktop.Avahi
+org.freedesktop.ColorManager
+org.freedesktop.DBus
+org.freedesktop.Flatpak.SystemHelper
 ```
 
 ## TODO
