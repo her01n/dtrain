@@ -29,6 +29,18 @@ com.intel.dleyna-server
 ...
 ```
 
+Add '--system' to use system bus, instead of the default session bus.
+
+```
+$ dtrain --system
+org.bluez
+org.freedesktop.Accounts
+org.freedesktop.Avahi
+org.freedesktop.ColorManager
+org.freedesktop.DBus
+org.freedesktop.Flatpak.SystemHelper
+```
+
 Use the service name as an argument to list objects and methods of the service.
 
 ```
@@ -49,28 +61,26 @@ $ dtrain org.gnome.ScreenSaver.GetActive
 false
 ```
 
-Add '--system' to use system bus, instead of the default session bus.
+Object name can be specified as the first argument, followed by the method name.
+The service name is derived from the interface name.
 
 ```
-$ dtrain --system
-org.bluez
-org.freedesktop.Accounts
-org.freedesktop.Avahi
-org.freedesktop.ColorManager
-org.freedesktop.DBus
-org.freedesktop.Flatpak.SystemHelper
+$ dtrain /org/gnome/SessionManager/App4 org.gnome.SessionManager.App.GetAppId
+TODO what should be returned?
 ```
 
 ## TODO
 
+- Some objects are missing,
+  for example call "dtrain --system org.freedesktop.login1"
+  is missing "/org/freedesktop/login1" object with interface "org.freedesktop.login1.Manager"
 - call dbus method
   - nice print of a complex result, like in org.gtk.vfs.Daemon.ListMonitorImplementations
   - print multiple results? is there an example for this?
 - better error message if the method call fails at the remote end
 - accept method arguments
-- argument --service and --object
+- argument --service
 - better error messages in case the service and object cannot be derived
-- arguments --session, --system to select the bus
 - better error message in case the session bus is not running
 - list properties of a service
 - get dbus property value

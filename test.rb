@@ -7,7 +7,12 @@ require './dtrain.rb'
 class TestObject < DBus::Object
 
   def initialize(object_name)
+    @name = object_name
     super(object_name)
+  end
+
+  def name()
+    @name
   end
 
   dbus_interface "com.her01n.Test" do
@@ -21,6 +26,18 @@ class TestObject < DBus::Object
       puts "Subtract called"
       return min - sub
     end
+
+    dbus_method :ShoutName, "out name:s" do
+      name().upcase() + "!"
+    end
+  end
+
+  dbus_interface "com.her01n.Test.Sub" do
+
+    dbus_method :Hello2, "out greeting:s" do
+      puts "Sub.Hello2 called"
+      return "Howdy"
+    end
   end
 end
 
@@ -33,8 +50,9 @@ class TestService
       $stdout = write
       bus = DBus.session_bus
       service = bus.request_service("com.her01n.Test")
-      exported = TestObject.new("/com/her01n/Test")
-      service.export(exported)
+      service.export(TestObject.new("/com/her01n/Test"))
+      service.export(TestObject.new("/com/her01n/Test/Alpha"))
+      service.export(TestObject.new("/com/her01n/Test/Sub"))
       @loop = DBus::Main.new
       @loop << bus
       puts "running"
@@ -145,6 +163,16 @@ class TestDTrain < Test::Unit::TestCase
     dtrain(["--verbose", "--system"])
     # some common system service name
     assert_include output, "org.freedesktop.hostname"
+  end
+
+  def test_object_name
+    dtrain(["--verbose", "/com/her01n/Test/Alpha", "com.her01n.Test.ShoutName"])
+    assert_include output, "ALPHA"
+  end
+
+  def test_subinterface
+    dtrain(["--verbose", "com.her01n.Test.Sub.Hello2"])
+    assert_include output, "Howdy"
   end
 end
 
