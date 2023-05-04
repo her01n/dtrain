@@ -41,7 +41,7 @@ org.freedesktop.DBus
 org.freedesktop.Flatpak.SystemHelper
 ```
 
-Use the service name as an argument to list objects and methods of the service.
+Use the service name as an argument to list objects and its methods and properties.
 
 ```
 $ dtrain org.gnome.ScreenSaver
@@ -50,7 +50,6 @@ $ dtrain org.gnome.ScreenSaver
   org.gnome.ScreenSaver.GetActiveTime
   org.gnome.ScreenSaver.Lock
   org.gnome.ScreenSaver.SetActive
-...
 ```
 
 Often, the service name and object name can be derived from the interface name.
@@ -61,12 +60,19 @@ $ dtrain org.gnome.ScreenSaver.GetActive
 false
 ```
 
+Property can be read by specifiying the interface and property name, like in a method call.
+
+```
+$ dtrain org.freedesktop.portal.Flatpak.version
+6
+```
+
 Object name can be specified as the first argument, followed by the method name.
 The service name is derived from the interface name.
 
 ```
 $ dtrain /org/gnome/SessionManager/App4 org.gnome.SessionManager.App.GetAppId
-TODO what should be returned?
+org.gnome.SettingsDaemon.Datetime.desktop
 ```
 
 ## TODO
@@ -82,8 +88,6 @@ TODO what should be returned?
 - argument --service
 - better error messages in case the service and object cannot be derived
 - better error message in case the session bus is not running
-- list properties of a service
-- get dbus property value
 - set dbus property value
 - monitor signal
 

@@ -8,6 +8,7 @@ class TestObject < DBus::Object
 
   def initialize(object_name)
     @name = object_name
+    @Four = 4
     super(object_name)
   end
 
@@ -30,6 +31,9 @@ class TestObject < DBus::Object
     dbus_method :ShoutName, "out name:s" do
       name().upcase() + "!"
     end
+
+    dbus_attr_reader :Four, "x"
+
   end
 
   dbus_interface "com.her01n.Test.Sub" do
@@ -173,6 +177,16 @@ class TestDTrain < Test::Unit::TestCase
   def test_subinterface
     dtrain(["--verbose", "com.her01n.Test.Sub.Hello2"])
     assert_include output, "Howdy"
+  end
+
+  def test_list_property
+    dtrain(["--verbose", "com.her01n.Test"])
+    assert_include output, "com.her01n.Test.Four"
+  end
+
+  def test_read_property
+    dtrain(["--verbose", "com.her01n.Test.Four"])
+    assert_include output, "4"
   end
 end
 

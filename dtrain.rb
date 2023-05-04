@@ -57,6 +57,16 @@ $skip_interfaces = [
   "org.freedesktop.DBus.Properties",
 ]
 
+def introspect_interface(iface, log)
+  log.puts "  Introspect Interface #{iface.name}"
+  iface.methods.keys.sort.each do |name|
+    puts "  #{iface.name()}.#{name}"
+  end
+  iface.properties.keys.sort.each do |name|
+    puts "  #{iface.name}.#{name} (property)"
+  end
+end
+
 def list_objects_methods(bus, log, name)
   log.puts "Introspect service #{name}"
   service = bus[name]
@@ -71,10 +81,7 @@ def list_objects_methods(bus, log, name)
         log.puts "  Skip Interface #{iface}"
         next
       end
-      log.puts "  Introspect Interface #{iface}"
-      obj[iface].methods.keys.sort.each do |name|
-        puts "  #{iface}.#{name}"
-      end
+      introspect_interface(obj[iface], log)
     end
   end
 end
@@ -131,7 +138,28 @@ def parse_method_arguments(params, args)
   return args
 end
 
-def call_method(bus, log, object_name, name, args_strings)
+def call_method(object, method, args_strings, log)
+  log.puts "Calling method"
+  parsed_args = parse_method_arguments(method.params, args_strings)
+  result = object.send(method.name, *parsed_args)
+  log.puts "Ok"
+  if result != nil then
+    log.puts "Result:"
+    puts result
+  end
+end
+
+def read_property(iface, method_name, log)
+  log.puts "Reading property"
+  result = iface[method_name]
+  log.puts "Ok"
+  if result != nil then
+    log.puts "Result:"
+    puts result
+  end
+end
+
+def call_name(bus, log, object_name, name, args_strings)
   interface_name, method_name = parse_interface_and_method(name)
   service_name = guess_service_name interface_name
   if not object_name then
@@ -143,12 +171,17 @@ def call_method(bus, log, object_name, name, args_strings)
   object_obj = service_obj[object_name]
   iface = object_obj[interface_name]
   method_obj = iface.methods[method_name]
-  parsed_args = parse_method_arguments(method_obj.params, args_strings)
-  result = object_obj.send(method_name, *parsed_args)
-  log.puts "Ok"
-  if result != nil then
-    log.puts "Result:"
-    puts result
+  if method_obj then
+    call_method(object_obj, method_obj, args_strings, log)
+  elsif iface.properties[method_name.to_sym] then
+    if args_strings.length == 0 then 
+      read_property(iface, method_name, log)
+    else
+      raise "Arguments to property given"
+    end
+  else
+    raise "No such method or property #{method_name} in interface #{interface_name}"
+      + " of object #{object_name} from service #{service_name}"
   end
 end
 
@@ -194,11 +227,11 @@ def dtrain(args)
       log.puts "service name given, list objects and methods"
       list_objects_methods(bus, log, names[0])
     elsif names.length >= 2 and names[0].start_with? "/" and names[1].include? "." then
-      log.puts "object and interface and method given, calling a method"
-      call_method(bus, log, names[0], names[1], names[2, names.length - 1])
+      log.puts "object and interface and method given, calling method or property"
+      call_name(bus, log, names[0], names[1], names[2, names.length - 1])
     elsif names[0].include? "." then
-      log.puts "interface and method given, calling a method"
-      call_method(bus, log, false, names[0], names[1, names.length - 1])
+      log.puts "interface and method given, calling method or property"
+      call_name(bus, log, false, names[0], names[1, names.length - 1])
     else
       $stderr.puts "Name #{name} is not a service and does not contain '.'."
       $stderr.puts "Specify a service name or a method as interface.Method."
