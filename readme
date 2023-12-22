@@ -77,9 +77,6 @@ org.gnome.SettingsDaemon.Datetime.desktop
 
 ## TODO
 
-- Some objects are missing,
-  for example call "dtrain --system org.freedesktop.login1"
-  is missing "/org/freedesktop/login1" object with interface "org.freedesktop.login1.Manager"
 - call dbus method
   - nice print of a complex result, like in org.gtk.vfs.Daemon.ListMonitorImplementations
   - print multiple results? is there an example for this?

@@ -141,6 +141,13 @@ class TestDTrain < Test::Unit::TestCase
     dtrain(["--verbose", "com.her01n.Test"])
     assert_include output, "/com/her01n/Test"
   end
+
+  def test_list_ancestor_objects
+    dtrain(["--verbose", "--system", "org.freedesktop.UPower"])
+    assert_include output, "/org/freedesktop/UPower"
+    assert_include output, "org.freedesktop.UPower.EnumerateDevices"
+    assert_not_include output, "/org\n"
+  end
   
   def test_list_methods
     dtrain(["--verbose", "com.her01n.Test"])

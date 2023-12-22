@@ -42,13 +42,18 @@ end
 def search_objects(prefix, node)
   objects = []
   node.each do |key, value|
-    if value == {} then
-      objects << (prefix + "/" + key)
-    else
+    objects << (prefix + "/" + key)
+    if not value.empty? then
       objects = objects + search_objects(prefix + "/" + key, value)
     end
   end
   objects
+end
+
+def objects(service)
+  search_objects("", service.root).filter do |object|
+    not service.object(object).interfaces.empty?
+  end
 end
 
 $skip_interfaces = [
@@ -71,7 +76,7 @@ def list_objects_methods(bus, log, name)
   log.puts "Introspect service #{name}"
   service = bus[name]
   service.introspect
-  objects = search_objects("", service.root)
+  objects = objects(service)
   log.puts "Objects and methods of service #{name}:"
   objects.sort.each do |object|
     puts object
